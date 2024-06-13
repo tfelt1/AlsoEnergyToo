@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Power Tracker™</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        :root {
+            --primary-color: #333333;
+            /* Dark Gray */
+            --secondary-color: #7DCFB6;
+            /* Light Green */
+            --background-color: #FFFFFF;
+            /* White */
+            --foreground-color: #333333;
+            /* Dark Gray */
+            --primary-foreground: #FFFFFF;
+            /* White */
+            --muted: #F0F0F0;
+            /* Light Gray */
+            --radius: .5rem;
+            box-sizing: border-box;
+            font-family: "Open Sans", sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--foreground-color);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+        }
+
+        nav .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        nav .logo {
+            width: 100px;
+            height: auto;
+        }
+
+        nav .tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav .tabs li {
+            margin: 0 1rem;
+        }
+
+        nav .tabs a {
+            color: var(--primary-foreground);
+            text-decoration: none;
+        }
+
+        nav .tabs a:hover {
+            color: var(--secondary-color);
+        }
+
+        .container {
+            display: flex;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .sidebar {
+            width: 200px;
+            padding-right: 1rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar ul a {
+            text-decoration: none;
+            color: var(--foreground-color);
+        }
+
+        .sidebar ul a:hover {
+            color: var(--secondary-color);
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        h2,
+        h3 {
+            color: var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            background: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo-container">
+            <img src="https://drscdn.500px.org/photo/1094954140/q%3D90_m%3D2048/v2?sig=8353879b1371fb804d4b824799aaa3e1568fe74de6fedb252640d867cf9b3aa3"
+                alt="SMA Logo" class="logo">
+        </div>
+        <ul class="tabs">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#operations">Operations</a></li>
+            <li><a href="#analysis">Analysis</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <aside class="sidebar">
+            <ul id="overview-submenu" class="submenu">
+                <li><a href="#overview-1">Overview Page 1</a></li>
+                <li><a href="#overview-2">Overview Page 2</a></li>
+            </ul>
+            <ul id="operations-submenu" class="submenu" style="display: none;">
+                <li><a href="#operations-1">Operations Page 1</a></li>
+                <li><a href="#operations-2">Operations Page 2</a></li>
+            </ul>
+            <ul id="analysis-submenu" class="submenu" style="display: none;">
+                <li><a href="#analysis-1">Analysis Page 1</a></li>
+                <li><a href="#analysis-2">Analysis Page 2</a></li>
+            </ul>
+        </aside>
+        <main class="content">
+            <h2>Fleet View</h2>
+            <h3>Customer Portfolios</h3>
+            <p>Welcome to Power Tracker™. Here you can view real-time performance data and detailed analysis of various
+                solar sites.</p>
+        </main>
+    </div>
+    <footer class="container">
+        <small>&copy; 2024 Power Tracker™</small>
+    </footer>
+    <script>
+        document.querySelectorAll('.tabs a').forEach(tab => {
+            tab.addEventListener('click', event => {
+                event.preventDefault();
+                document.querySelectorAll('.submenu').forEach(submenu => {
+                    submenu.style.display = 'none';
+                });
+                document.querySelector(`#${tab.getAttribute('href').substring(1)}-submenu`).style.display = 'block';
+            });
+        });
+    </script>
+</body>
+
+</html>

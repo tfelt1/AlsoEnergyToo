@@ -1,0 +1,1 @@
+Setting up a Replit project for a PV Solar Modeling Platform with existing simplified HTML code.
