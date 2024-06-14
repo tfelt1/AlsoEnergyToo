@@ -1,35 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Power Tracker™</title>
+    <title>WattTracker™</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
         :root {
-            --primary-color: #333333;
-            /* Dark Gray */
-            --secondary-color: #7DCFB6;
-            /* Light Green */
-            --background-color: #FFFFFF;
-            /* White */
-            --foreground-color: #333333;
-            /* Dark Gray */
-            --primary-foreground: #FFFFFF;
-            /* White */
-            --muted: #F0F0F0;
-            /* Light Gray */
+            --primary-color: #333333; /* Dark Gray */
+            --secondary-color: #7DCFB6; /* Light Green */
+            --hover-color: #FFD700; /* Yellow for hover */
+            --background-color: #FFFFFF; /* White */
+            --foreground-color: #333333; /* Dark Gray */
+            --highlight-color: #FF5733; /* Highlight color */
+            --primary-foreground: #FFFFFF; /* White */
+            --muted: #F0F0F0; /* Light Gray */
             --radius: .5rem;
             box-sizing: border-box;
             font-family: "Open Sans", sans-serif;
         }
-
         body {
             background-color: var(--background-color);
             color: var(--foreground-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-
         nav {
             display: flex;
             justify-content: space-between;
@@ -41,131 +37,607 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 0.5rem 1rem;
         }
-
         nav .logo-container {
             display: flex;
             align-items: center;
         }
-
         nav .logo {
             width: 100px;
             height: auto;
         }
-
         nav .tabs {
             display: flex;
             list-style: none;
             padding: 0;
             margin: 0;
+            flex-grow: 1;
+            justify-content: center;
         }
-
         nav .tabs li {
+            display: flex;
+            align-items: center;
             margin: 0 1rem;
         }
-
         nav .tabs a {
             color: var(--primary-foreground);
             text-decoration: none;
         }
-
-        nav .tabs a:hover {
-            color: var(--secondary-color);
+        nav .tabs a:hover,
+        nav .tabs a.active {
+            color: var(--hover-color);
         }
-
+        .login-link {
+            margin-left: auto;
+            color: var(--primary-foreground);
+            text-decoration: none;
+        }
+        .login-link:hover,
+        .login-link.active {
+            color: var(--hover-color);
+        }
         .container {
             display: flex;
-            padding-top: 2rem;
+            padding-top: 1rem;
             padding-bottom: 2rem;
+            flex: 1;
         }
-
+        .title-container {
+            text-align: center;
+            width: 100%;
+            background: var(--primary-color);
+            color: var(--primary-foreground);
+            padding: 0.5rem;
+        }
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-foreground);
+        }
         .sidebar {
             width: 200px;
             padding-right: 1rem;
         }
-
         .sidebar ul {
             list-style: none;
             padding: 0;
         }
-
         .sidebar ul li {
             margin-bottom: 1rem;
         }
-
         .sidebar ul a {
             text-decoration: none;
             color: var(--foreground-color);
         }
-
-        .sidebar ul a:hover {
-            color: var(--secondary-color);
+        .sidebar ul a:hover,
+        .sidebar ul a.active {
+            color: var(--hover-color);
         }
-
+        .submenu .submenu {
+            margin-left: 1rem;
+            display: none;
+        }
+        .submenu .caret::before {
+            content: "►";
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        .submenu.open .caret::before {
+            transform: rotate(90deg);
+        }
         .content {
             flex: 1;
         }
-
-        h2,
-        h3 {
+        h2, h3 {
             color: var(--primary-color);
         }
-
         footer {
             text-align: center;
             padding: 1rem 0;
             background: var(--muted);
+            margin-top: auto;
+        }
+        .login-container {
+            max-width: 300px;
+            margin: 2rem auto;
+            padding: 1rem;
+            border: 1px solid var(--muted);
+            border-radius: var(--radius);
+            background: var(--background-color);
+        }
+        .login-container input {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border: 1px solid var(--muted);
+            border-radius: var(--radius);
+        }
+        .login-container button {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--primary-color);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: var(--hover-color);
+        }
+        .countdown {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--primary-color);
+            color: var(--primary-foreground);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .dollar-figure {
+            color: red;
+            font-weight: bold;
+        }
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .toggle-button {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin: 0 1rem;
+        }
+        .toggle-button:hover,
+        .toggle-button.active {
+            background-color: var(--hover-color);
+        }
+        .toggle-image {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .toggle-image.active {
+            display: block;
         }
     </style>
 </head>
-
-<body>
+<body onload="showLogin()">
+    <div class="title-container">
+        <div class="title">WattTracker™</div>
+    </div>
     <nav>
         <div class="logo-container">
-            <img src="https://drscdn.500px.org/photo/1094954140/q%3D90_m%3D2048/v2?sig=8353879b1371fb804d4b824799aaa3e1568fe74de6fedb252640d867cf9b3aa3"
-                alt="SMA Logo" class="logo">
+            <img src="https://drscdn.500px.org/photo/1094954140/q%3D90_m%3D2048/v2?sig=8353879b1371fb804d4b824799aaa3e1568fe74de6fedb252640d867cf9b3aa3" alt="SMA Logo" class="logo">
         </div>
         <ul class="tabs">
-            <li><a href="#overview">Overview</a></li>
+            <li><a href="https://www.sunnydesignweb.com/sdweb#/Home" target="_blank">Sunny Design PRO</a></li>
+            <li><a href="#monitoring">Monitoring</a></li>
             <li><a href="#operations">Operations</a></li>
-            <li><a href="#analysis">Analysis</a></li>
+            <li><a href="#appointments">Appointments</a></li>
+            <li><a href="#tools">Tools</a></li>
         </ul>
+        <a href="#login" class="login-link">Login</a>
     </nav>
+    <div class="countdown">Payback on Investment: <span id="countdown-timer">0y 0m 0d 00:00:00</span> <br> <span class="dollar-figure" id="dollar-figure">$1,000,000</span></div>
     <div class="container">
         <aside class="sidebar">
-            <ul id="overview-submenu" class="submenu">
-                <li><a href="#overview-1">Overview Page 1</a></li>
-                <li><a href="#overview-2">Overview Page 2</a></li>
+            <ul id="monitoring-submenu" class="submenu">
+                <li><a href="#monitoring-1" class="active">Fleet</a></li>
+                <li class="submenu">
+                    <a href="#" class="caret">Client Portfolio 1</a>
+                    <ul class="submenu">
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 1</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 2</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 3</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 4</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 5</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <a href="#" class="caret">Client Portfolio 2</a>
+                    <ul class="submenu">
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 1</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 2</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 3</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 4</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 5</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <a href="#" class="caret">Client Portfolio 3</a>
+                    <ul class="submenu">
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 1</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 2</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 3</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 4</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 5</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <a href="#" class="caret">Client Portfolio 4</a>
+                    <ul class="submenu">
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 1</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 2</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 3</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 4</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="#" class="caret">Project 5</a>
+                            <ul class="submenu">
+                                <li><a href="#">Component 1</a></li>
+                                <li><a href="#">Component 2</a></li>
+                                <li><a href="#">Component 3</a></li>
+                                <li><a href="#">Component 4</a></li>
+                                <li><a href="#">Component 5</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
             </ul>
             <ul id="operations-submenu" class="submenu" style="display: none;">
                 <li><a href="#operations-1">Operations Page 1</a></li>
                 <li><a href="#operations-2">Operations Page 2</a></li>
             </ul>
-            <ul id="analysis-submenu" class="submenu" style="display: none;">
-                <li><a href="#analysis-1">Analysis Page 1</a></li>
-                <li><a href="#analysis-2">Analysis Page 2</a></li>
+            <ul id="appointments-submenu" class="submenu" style="display: none;">
+                <li><a href="#appointments-1">Schedule Tech On-site</a></li>
+                <li><a href="#appointments-2">Schedule Training</a></li>
+            </ul>
+            <ul id="tools-submenu" class="submenu" style="display: none;">
+                <li><a href="#tools-1">Tools Page 1</a></li>
+                <li><a href="#tools-2">Tools Page 2</a></li>
             </ul>
         </aside>
         <main class="content">
-            <h2>Fleet View</h2>
-            <h3>Customer Portfolios</h3>
-            <p>Welcome to Power Tracker™. Here you can view real-time performance data and detailed analysis of various
-                solar sites.</p>
+            <div id="monitoring-content">
+                <h2>Fleet</h2>
+                <div class="toggle-container">
+                    <button class="toggle-button active" onclick="showImage('dashboard')">Dashboard</button>
+                    <button class="toggle-button" onclick="showImage('performance')">Performance</button>
+                    <button class="toggle-button" onclick="showImage('project-map')">Project Map</button>
+                </div>
+                <img src="https://drscdn.500px.org/photo/1094959910/q%3D90_m%3D2048/v2?sig=775815b2cde360e66ac417b65db1cfcbb07548f2e694bd3de639828e6c0e0062" alt="Dashboard" id="dashboard" class="toggle-image active">
+                <img src="https://drscdn.500px.org/photo/1094959500/q%3D90_m%3D2048/v2?sig=f86ede0fc7f6b2b0565ea2a1c6e9d05f1eed54d1662217a2b4e54598322bc805" alt="Performance" id="performance" class="toggle-image">
+                <img src="https://drscdn.500px.org/photo/1094959501/q%3D90_m%3D2048/v2?sig=e37d3ce39a2ab4ca5511c315b96200211b58a0278177c922a4df02c13a8c5b52" alt="Project Map" id="project-map" class="toggle-image">
+            </div>
+            <div id="tools-content" style="display: none;">
+                <h2>Tools</h2>
+                <p>Welcome to the Tools section. Access various tools for your solar projects.</p>
+                <form id="loss-calculator" onsubmit="calculateLosses(event)">
+                    <label for="input-power">Input Power (W):</label>
+                    <input type="number" id="input-power" name="input-power" required><br>
+
+                    <label for="far-shading">Far Shading (% Loss):</label>
+                    <input type="number" id="far-shading" name="far-shading" required><br>
+
+                    <label for="near-shading">Near Shading (% Loss):</label>
+                    <input type="number" id="near-shading" name="near-shading" required><br>
+
+                    <label for="soiling">Soiling (% Loss):</label>
+                    <input type="number" id="soiling" name="soiling" required><br>
+
+                    <label for="module-mismatch">Module Mismatch (% Loss):</label>
+                    <input type="number" id="module-mismatch" name="module-mismatch" required><br>
+
+                    <button type="submit">Calculate Losses</button>
+                </form>
+                <div id="results">
+                    <!-- Results will be displayed here -->
+                </div>
+            </div>
+            <div id="login-content" style="display: none;">
+                <div class="login-container">
+                    <h3>Login</h3>
+                    <form id="login-form" onsubmit="event.preventDefault(); login();">
+                        <input type="text" id="username" name="username" placeholder="Username" value="username" required>
+                        <input type="password" id="password" name="password" placeholder="Password" value="password" required>
+                        <button type="submit">Let's Go!</button>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
     <footer class="container">
-        <small>&copy; 2024 Power Tracker™</small>
+        <small>&copy; 2024 WattTracker™</small>
     </footer>
     <script>
-        document.querySelectorAll('.tabs a').forEach(tab => {
+        document.querySelectorAll('.tabs a, .login-link').forEach(tab => {
             tab.addEventListener('click', event => {
                 event.preventDefault();
+                const href = tab.getAttribute('href');
+                if (href.startsWith('http')) return; // Ignore external links
+
                 document.querySelectorAll('.submenu').forEach(submenu => {
                     submenu.style.display = 'none';
                 });
-                document.querySelector(`#${tab.getAttribute('href').substring(1)}-submenu`).style.display = 'block';
+                document.querySelectorAll('.content > div').forEach(content => {
+                    content.style.display = 'none';
+                });
+                const tabId = href.substring(1);
+                if (tabId !== 'login') {
+                    document.querySelector(`#${tabId}-submenu`).style.display = 'block';
+                }
+                document.querySelector(`#${tabId}-content`).style.display = 'block';
+                highlightTab(tab);
             });
         });
+
+        function highlightTab(tab) {
+            document.querySelectorAll('.tabs a, .login-link').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        }
+
+        document.querySelectorAll('.submenu > a.caret').forEach(caret => {
+            caret.addEventListener('click', event => {
+                event.preventDefault();
+                const nestedSubmenu = caret.nextElementSibling;
+                caret.parentElement.classList.toggle('open');
+                nestedSubmenu.style.display = nestedSubmenu.style.display === "block" ? "none" : "block";
+            });
+        });
+
+        function calculateLosses(event) {
+            event.preventDefault();
+            const inputPower = document.getElementById('input-power').value;
+            const farShading = document.getElementById('far-shading').value;
+            const nearShading = document.getElementById('near-shading').value;
+            const soiling = document.getElementById('soiling').value;
+            const moduleMismatch = document.getElementById('module-mismatch').value;
+
+            let power = inputPower;
+            power *= (100 - farShading) / 100;
+            power *= (100 - nearShading) / 100;
+            power *= (100 - soiling) / 100;
+            power *= (100 - moduleMismatch) / 100;
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<p>Total System Power after Losses: ${parseFloat(power).toFixed(2).toLocaleString()} W</p>`;
+        }
+
+        function showImage(imageId) {
+            document.querySelectorAll('.toggle-image').forEach(img => {
+                img.classList.remove('active');
+            });
+            document.getElementById(imageId).classList.add('active');
+            document.querySelectorAll('.toggle-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showImage('${imageId}')"]`).classList.add('active');
+        }
+
+        function calculatePaybackTime() {
+            const endDate = new Date();
+            const now = new Date();
+            const randomDays = Math.floor(Math.random() * 7 * 365); // Random within the next 7 years
+            endDate.setDate(now.getDate() + randomDays);
+            return endDate;
+        }
+
+        function startCountdown(endDate, display, dollarDisplay) {
+            const interval = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = endDate - now;
+
+                const years = Math.floor(distance / (1000 * 60 * 60 * 24 * 365));
+                const months = Math.floor((distance % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+                const days = Math.floor((distance % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                display.textContent = `${years}y ${months}m ${days}d ${hours}:${minutes}:${seconds}`;
+
+                const initialAmount = 1000000; // starting dollar amount
+                const totalDuration = 7 * 365 * 24 * 60 * 60; // 7 years in seconds
+                const elapsedTime = totalDuration - (distance / 1000); // elapsed time in seconds
+                const decrementRate = initialAmount / totalDuration;
+                const currentAmount = Math.max(0, initialAmount - (elapsedTime * decrementRate));
+                dollarDisplay.textContent = `$${currentAmount.toLocaleString()}`;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    display.textContent = "0y 0m 0d 00:00:00";
+                    dollarDisplay.textContent = "$0.00";
+                }
+            }, 1000);
+        }
+
+        function showLogin() {
+            document.querySelector('.login-link').click();
+        }
+
+        function login() {
+            document.getElementById('monitoring-content').style.display = 'block';
+            document.getElementById('login-content').style.display = 'none';
+            document.querySelector('#monitoring-submenu').style.display = 'block';
+            document.querySelectorAll('.tabs a').forEach(tab => {
+                if (tab.getAttribute('href') === '#monitoring') {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        window.onload = function () {
+            const endDate = calculatePaybackTime();
+            const display = document.querySelector('#countdown-timer');
+            const dollarDisplay = document.querySelector('#dollar-figure');
+            startCountdown(endDate, display, dollarDisplay);
+        };
     </script>
 </body>
-
 </html>
